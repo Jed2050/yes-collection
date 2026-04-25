@@ -2,9 +2,20 @@
 
 > Elevated. Refined. Set Apart.
 
-A complete static luxury e-commerce storefront for **YES COLLECTION**, a bespoke menswear atelier (tuxedos, three-piece suits, dinner jackets, wedding pieces, accessories).
+A complete luxury e-commerce storefront for **YES COLLECTION**, a bespoke menswear atelier (tuxedos, three-piece suits, dinner jackets, wedding pieces, accessories).
 
-Built as pure HTML / CSS / JavaScript — **no build step, no Node, no database**. Drop the folder on Hostinger and it runs.
+**Architecture:** Express (Node.js 18+) serving static HTML / CSS / JavaScript with API routes for contact + order intake. Designed for **Hostinger Node.js Application Manager**.
+
+---
+
+## QUICKSTART (LOCAL)
+
+```bash
+npm install
+npm start              # http://localhost:3000
+```
+
+For deployment instructions, see **`DEPLOY-HOSTINGER.md`** (Kreyòl).
 
 ---
 
@@ -12,6 +23,8 @@ Built as pure HTML / CSS / JavaScript — **no build step, no Node, no database*
 
 ```
 YES-COLLECTION/
+├── server.js             ← Express server (STARTUP FILE for Hostinger)
+├── package.json          ← Dependencies
 ├── index.html            ← Home / Maison
 ├── collection.html       ← Full catalog with filters
 ├── product.html          ← Product detail (uses ?id=)
@@ -19,9 +32,10 @@ YES-COLLECTION/
 ├── about.html            ← Atelier story
 ├── contact.html          ← Booking form
 ├── 404.html              ← Custom not-found page
-├── .htaccess             ← Hostinger config (HTTPS, cache, clean URLs)
+├── .htaccess             ← BACKUP for static fallback (Apache only)
 ├── robots.txt
 ├── sitemap.xml
+├── DEPLOY-HOSTINGER.md   ← Deploy guide (Kreyòl)
 └── assets/
     ├── css/styles.css    ← Complete design system
     ├── js/products.js    ← Product catalog (edit here to add/change products)
@@ -31,23 +45,40 @@ YES-COLLECTION/
 
 ---
 
-## DEPLOYMENT — HOSTINGER
+## SERVER FEATURES
 
-### Method 1 · File Manager (easiest)
+`server.js` provides:
 
-1. Log into **hpanel.hostinger.com**
-2. Open your hosting plan → **File Manager**
-3. Navigate to `public_html/`
-4. **Delete** the default `default.php` / `index.html` if present
-5. Select **all files** inside `YES-COLLECTION/` (not the folder itself — its contents) and **drag-drop** into `public_html/`
-   - Make sure `.htaccess` is included (enable "Show hidden files" in File Manager settings)
-6. Done. Visit your domain.
+- **Static file serving** with smart caching (HTML no-cache, assets 1 year immutable)
+- **Clean URLs**: `/collection` resolves `collection.html`, `/product?id=…`, etc.
+- **HTTPS + www→root redirects** in production
+- **Compression** (gzip)
+- **Helmet** security headers
+- **API routes**:
+  - `GET /api/health` → service health check
+  - `POST /api/contact` → contact form intake
+  - `POST /api/order` → order intake (alternative to WhatsApp checkout)
+- **Custom 404** page
 
-### Method 2 · ZIP upload
+---
 
-1. Zip the **contents** of `YES-COLLECTION/` (not the folder itself)
-2. In File Manager → Upload → upload the zip into `public_html/`
-3. Right-click the zip → **Extract**
+## DEPLOYMENT — HOSTINGER NODE.JS
+
+Full guide in `DEPLOY-HOSTINGER.md`. Summary:
+
+1. **GitHub:** `Jed2050/yes-collection` (already pushed)
+2. **hPanel → Avansé → GitHub** → connect → link repo to `/public_html`
+3. **hPanel → Avansé → Node.js** → Create Application:
+   - Node version: `20.x`
+   - Mode: `Production`
+   - Startup file: `server.js`
+   - Application root: where Hostinger cloned the repo
+4. **hPanel → SSL** → install Let's Encrypt
+5. Visit your domain.
+
+### Optional: Static-only fallback
+
+If you ever need static-only hosting, the `.htaccess` is preserved with HTTPS forcing, clean URLs, caching, and security headers — drop the folder on any Apache shared hosting and it runs without Node.
 4. Delete the zip
 
 ### Method 3 · FTP
