@@ -1,0 +1,204 @@
+/* ========================================================================
+   YES COLLECTION — Product Catalog
+   ======================================================================== */
+
+window.YES_PRODUCTS = [
+  {
+    id: 'royal-noir-tuxedo',
+    name: 'Royal Noir Tuxedo',
+    category: 'tuxedo',
+    categoryLabel: 'Tuxedo',
+    price: 1250,
+    badge: 'Signature',
+    images: [
+      'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1593030103066-0093718efeb9?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Satin shawl lapel, hand-finished. The defining piece of the house.',
+    description: 'Cut from premium Italian wool with a lustrous satin shawl lapel and bone buttons. Hand-stitched canvas chest piece for natural drape over the years.',
+    fabric: 'Italian Super 130s wool',
+    color: 'Midnight Black',
+    sizes: ['44', '46', '48', '50', '52', '54'],
+    features: ['Half-canvas construction', 'Satin lapel & trim', 'Working surgeon cuffs', 'Made-to-measure available'],
+  },
+  {
+    id: 'sovereign-three-piece',
+    name: 'Sovereign Three-Piece',
+    category: 'three-piece',
+    categoryLabel: 'Three-Piece',
+    price: 1480,
+    badge: 'New Arrival',
+    images: [
+      'https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1598808503746-f34c53b9323e?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Charcoal three-piece with double-breasted waistcoat.',
+    description: 'A complete three-piece composition in dark charcoal. Notched lapel jacket, six-button waistcoat with shawl collar, and slim-tapered trousers. Designed for the man who commands the room.',
+    fabric: 'English worsted wool',
+    color: 'Charcoal',
+    sizes: ['44', '46', '48', '50', '52', '54'],
+    features: ['Three-piece composition', 'Bemberg lining', 'Reinforced shoulders', 'Trousers with side adjusters'],
+  },
+  {
+    id: 'midnight-velvet-jacket',
+    name: 'Midnight Velvet Dinner Jacket',
+    category: 'dinner',
+    categoryLabel: 'Dinner Jacket',
+    price: 980,
+    badge: 'Limited',
+    images: [
+      'https://images.unsplash.com/photo-1593032465175-481ac7f401a0?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Burgundy velvet, peak satin lapel. For the unforgettable arrival.',
+    description: 'A statement dinner jacket in deep burgundy velvet with a peak satin lapel. Pairs effortlessly with black evening trousers. Made in limited quantities each season.',
+    fabric: 'Italian cotton velvet',
+    color: 'Deep Burgundy',
+    sizes: ['46', '48', '50', '52'],
+    features: ['Peak satin lapel', 'Single-button closure', 'Jetted pockets', 'Limited release'],
+  },
+  {
+    id: 'ivoire-wedding-suit',
+    name: 'Ivoire Wedding Suit',
+    category: 'wedding',
+    categoryLabel: 'Wedding',
+    price: 1620,
+    badge: 'Bespoke',
+    images: [
+      'https://images.unsplash.com/photo-1598808503746-f34c53b9323e?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Ivory three-piece with hand-embroidered lapel detail.',
+    description: 'For the most important day. Cut in ivory wool-silk blend with subtle hand-embroidered lapel detailing in gold thread. Includes coordinating waistcoat and trousers.',
+    fabric: 'Wool-silk blend',
+    color: 'Ivory',
+    sizes: ['44', '46', '48', '50', '52'],
+    features: ['Hand-embroidered lapel', 'Mother-of-pearl buttons', 'Silk lining', 'White-glove fitting service'],
+  },
+  {
+    id: 'navy-double-breasted',
+    name: 'Empire Navy Double-Breasted',
+    category: 'two-piece',
+    categoryLabel: 'Two-Piece',
+    price: 1180,
+    badge: null,
+    images: [
+      'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1617114919297-3c8ddb01f599?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Six-button double-breasted, soft Italian construction.',
+    description: 'A modern interpretation of the double-breasted classic. Six-button closure with peak lapels, soft Italian shoulder, and slim flat-front trousers.',
+    fabric: 'Italian fresco wool',
+    color: 'Empire Navy',
+    sizes: ['44', '46', '48', '50', '52', '54'],
+    features: ['Soft Italian shoulder', 'Peak lapels', 'Patch pockets', 'Unstructured comfort'],
+  },
+  {
+    id: 'obsidian-slim-fit',
+    name: 'Obsidian Slim-Fit Two-Piece',
+    category: 'two-piece',
+    categoryLabel: 'Two-Piece',
+    price: 890,
+    badge: 'Bestseller',
+    images: [
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'The everyday icon. Slim notch lapel, infinitely versatile.',
+    description: 'The cornerstone of the YES wardrobe. A slim-fit two-piece in deep obsidian wool with notched lapels and pick-stitched details. Engineered to elevate every occasion.',
+    fabric: 'Super 110s wool',
+    color: 'Obsidian Black',
+    sizes: ['42', '44', '46', '48', '50', '52', '54'],
+    features: ['Slim contemporary fit', 'Notch lapels', 'Pick-stitched details', 'Half-canvas construction'],
+  },
+  {
+    id: 'gold-bowtie-set',
+    name: 'Gilded Bow Tie & Pocket Square',
+    category: 'accessories',
+    categoryLabel: 'Accessories',
+    price: 145,
+    badge: null,
+    images: [
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Hand-tied silk bow tie paired with matching square.',
+    description: 'A coordinated set: hand-tied silk bow tie in royal gold paired with a matching pocket square. Adjustable band, presented in a YES Collection lacquer box.',
+    fabric: 'Pure mulberry silk',
+    color: 'Royal Gold',
+    sizes: ['One Size'],
+    features: ['Hand-tied silk', 'Matching pocket square', 'Adjustable band', 'Presented in lacquer box'],
+  },
+  {
+    id: 'monarch-cufflinks',
+    name: 'Monarch Cufflinks',
+    category: 'accessories',
+    categoryLabel: 'Accessories',
+    price: 220,
+    badge: null,
+    images: [
+      'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'Brass-cast crown cufflinks with onyx inlay.',
+    description: 'Cast in solid brass with a polished gold finish, set with deep black onyx. The crown silhouette is a quiet nod to the house signature.',
+    fabric: 'Brass with onyx inlay',
+    color: 'Gold / Onyx',
+    sizes: ['One Size'],
+    features: ['Solid brass casting', 'Polished gold finish', 'Onyx stone inlay', 'Lifetime guarantee'],
+  },
+  {
+    id: 'bespoke-consultation',
+    name: 'Bespoke Atelier Consultation',
+    category: 'bespoke',
+    categoryLabel: 'Bespoke Service',
+    price: 0,
+    badge: 'By Appointment',
+    images: [
+      'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
+    ],
+    short: 'A private session with our master tailor.',
+    description: 'A 90-minute private consultation at the atelier. Includes fabric selection, measurements, and a personalized design conversation. Complimentary for first-time clients.',
+    fabric: 'N/A',
+    color: 'N/A',
+    sizes: ['Single Session'],
+    features: ['90-minute private session', '300+ fabric options', 'Master tailor measurement', 'Complimentary first visit'],
+  },
+];
+
+/* ===== Categories used in filters ===== */
+window.YES_CATEGORIES = [
+  { id: 'all',         label: 'All Pieces' },
+  { id: 'tuxedo',      label: 'Tuxedos' },
+  { id: 'three-piece', label: 'Three-Piece' },
+  { id: 'two-piece',   label: 'Two-Piece' },
+  { id: 'dinner',      label: 'Dinner Jacket' },
+  { id: 'wedding',     label: 'Wedding' },
+  { id: 'accessories', label: 'Accessories' },
+  { id: 'bespoke',     label: 'Bespoke' },
+];
+
+/* ===== Helpers ===== */
+window.YES_HELPERS = {
+  formatPrice(value) {
+    if (value === 0) return 'On request';
+    return '$' + value.toLocaleString('en-US');
+  },
+  findProduct(id) {
+    return window.YES_PRODUCTS.find(p => p.id === id);
+  },
+  filterProducts(category) {
+    if (!category || category === 'all') return window.YES_PRODUCTS;
+    return window.YES_PRODUCTS.filter(p => p.category === category);
+  },
+};
