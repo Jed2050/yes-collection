@@ -22,6 +22,18 @@ node_modules/
 .env
 .env.local
 
+# Runtime data (admin credentials + user uploads should not be committed)
+data/admin.json
+data/uploads/*
+!data/uploads/.gitkeep
+
 # Hostinger backups
 *.bak
 *-backup/
+
+# Live data (admin edits) — seeded from products.json.example on first boot
+data/products.json
+
+# Uploaded product images (admin uploads) — keep folder, ignore contents
+assets/img/products/*
+!assets/img/products/.gitkeep

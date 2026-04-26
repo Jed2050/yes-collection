@@ -375,15 +375,20 @@
   }
 
   /* ---------- BOOT ---------- */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     setupMobileDrawer();
     setupReveal();
+    setupContactForm();
+    setupNewsletter();
+    window.YES_CART.refreshBadge();
+
+    // Wait for the products API to resolve before rendering data-driven sections
+    if (window.YES_PRODUCTS_READY) {
+      await window.YES_PRODUCTS_READY;
+    }
     renderFeatured();
     renderCollection();
     renderProductDetail();
     renderCartPage();
-    setupContactForm();
-    setupNewsletter();
-    window.YES_CART.refreshBadge();
   });
 })();

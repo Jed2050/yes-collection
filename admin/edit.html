@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<title>Edit Product · YES COLLECTION</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230A0A0A'/%3E%3Ctext x='50' y='66' font-family='Cinzel,serif' font-size='44' font-weight='700' text-anchor='middle' fill='%23D4AF37'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <a href="/admin" class="sidebar-brand">
+      <div class="mark">Y</div>
+      <div class="name">YES Atelier</div>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4h6v6M20 4l-9 9M5 5h6v2H5v12h12v-6h2v8H3V5h2z" stroke-linejoin="round"/></svg>
+        <span>View Site</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="user-label">—</span>
+      <a href="#" id="logout">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-head">
+      <div>
+        <h1 id="editor-title">New Piece</h1>
+        <div class="meta">
+          <a href="/admin">← Back to products</a>
+        </div>
+      </div>
+    </header>
+
+    <form id="editor">
+      <div class="editor-grid">
+        <!-- Left column: details -->
+        <div>
+          <div class="section-card">
+            <h3>Identity</h3>
+            <div class="field-grid">
+              <div class="field span-2">
+                <label for="name">Name <span style="color:var(--danger)">*</span></label>
+                <input id="name" name="name" type="text" required placeholder="e.g. Royal Noir Tuxedo">
+              </div>
+              <div class="field">
+                <label for="category">Category</label>
+                <select id="category" name="category"></select>
+              </div>
+              <div class="field">
+                <label for="badge">Badge (optional)</label>
+                <input id="badge" name="badge" type="text" placeholder="Signature, New Arrival, Limited…">
+              </div>
+              <div class="field">
+                <label for="price">Price (USD) — 0 = "On request"</label>
+                <input id="price" name="price" type="number" min="0" step="1" placeholder="1250">
+              </div>
+              <div class="field">
+                <label for="color">Color</label>
+                <input id="color" name="color" type="text" placeholder="Midnight Black">
+              </div>
+              <div class="field span-2">
+                <label for="fabric">Fabric / Material</label>
+                <input id="fabric" name="fabric" type="text" placeholder="Italian Super 130s wool">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h3>Copy</h3>
+            <div class="field">
+              <label for="short">Short tagline (used on cards)</label>
+              <input id="short" name="short" type="text" placeholder="Satin shawl lapel, hand-finished. The defining piece of the house.">
+            </div>
+            <div class="field">
+              <label for="description">Full description</label>
+              <textarea id="description" name="description" rows="5" placeholder="Cut from premium Italian wool with…"></textarea>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h3>Sizes</h3>
+            <div class="string-list" id="sizes-list"></div>
+            <button type="button" class="add-btn" data-add="size">+ Add size</button>
+          </div>
+
+          <div class="section-card">
+            <h3>Features (bullet points)</h3>
+            <div class="string-list" id="features-list"></div>
+            <button type="button" class="add-btn" data-add="feature">+ Add feature</button>
+          </div>
+        </div>
+
+        <!-- Right column: images + status -->
+        <div>
+          <div class="section-card">
+            <h3>Images</h3>
+            <div class="image-grid" id="image-grid"></div>
+            <input type="file" id="file-input" accept="image/*" multiple style="display:none;">
+            <button type="button" class="btn btn-ghost btn-block" id="upload-btn" style="margin-bottom: 14px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M12 16V4M6 10l6-6 6 6M4 20h16" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Upload from computer
+            </button>
+            <div class="image-url-add">
+              <input id="image-url" type="url" placeholder="…or paste an image URL">
+              <button type="button" class="btn btn-ghost btn-sm" id="add-url">Add</button>
+            </div>
+            <p class="help">First image becomes the primary card image. Drag to reorder (or use Remove and re-add).</p>
+          </div>
+
+          <div class="section-card">
+            <h3>Identifier</h3>
+            <div class="field">
+              <label for="id">URL slug (id)</label>
+              <input id="id" name="id" type="text" placeholder="auto-generated from name">
+            </div>
+            <p class="help">Auto-generated from the name. Changing this for an existing piece will create a duplicate — leave blank to keep the original.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-foot">
+        <button type="button" class="btn btn-danger" id="delete-btn" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Delete piece
+        </button>
+        <div class="right">
+          <a href="/admin" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            <span id="save-label">Save</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-bg" id="confirm-modal">
+  <div class="modal">
+    <h3>Delete piece</h3>
+    <p id="confirm-text">Are you sure?</p>
+    <div class="actions">
+      <button class="btn btn-ghost btn-sm" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/assets/admin.js"></script>
+<script>
+AdminApp.editor();
+</script>
+
+</body>
+</html>

@@ -84,7 +84,7 @@
 
   /* WhatsApp checkout — generates a pre-filled order message
      IMPORTANT: replace WA_NUMBER with the real business WhatsApp number (no +) */
-  const WA_NUMBER = '50900000000'; // <-- REPLACE THIS
+  const WA_NUMBER = '15618091720'; // <-- REPLACE THIS
 
   function buildWhatsAppOrder() {
     const items = read();

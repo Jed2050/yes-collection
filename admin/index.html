@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<title>Dashboard · YES COLLECTION</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230A0A0A'/%3E%3Ctext x='50' y='66' font-family='Cinzel,serif' font-size='44' font-weight='700' text-anchor='middle' fill='%23D4AF37'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <a href="/admin" class="sidebar-brand">
+      <div class="mark">Y</div>
+      <div class="name">YES Atelier</div>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4h6v6M20 4l-9 9M5 5h6v2H5v12h12v-6h2v8H3V5h2z" stroke-linejoin="round"/></svg>
+        <span>View Site</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="user-label">—</span>
+      <a href="#" id="logout">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-head">
+      <div>
+        <h1>Products</h1>
+        <div class="meta" id="count-meta">Loading…</div>
+      </div>
+      <div class="actions">
+        <a href="/admin/edit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M12 5v14M5 12h14" stroke-width="1.6" stroke-linecap="round"/></svg>
+          New Product
+        </a>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search by name, ID, fabric, color…">
+      </div>
+      <div class="cat-filter">
+        <select id="cat-filter">
+          <option value="all">All categories</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="product-table" id="table">
+      <div class="product-row head">
+        <div></div>
+        <div>Name</div>
+        <div class="col-cat">Category</div>
+        <div class="col-price">Price</div>
+        <div class="col-badge">Badge</div>
+        <div></div>
+      </div>
+      <div id="list">
+        <div class="empty"><h3>Loading</h3><p>Fetching the collection…</p></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-bg" id="confirm-modal">
+  <div class="modal">
+    <h3>Delete piece</h3>
+    <p id="confirm-text">Are you sure?</p>
+    <div class="actions">
+      <button class="btn btn-ghost btn-sm" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/assets/admin.js"></script>
+<script>
+AdminApp.dashboard();
+</script>
+
+</body>
+</html>
