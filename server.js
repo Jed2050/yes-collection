@@ -1,31 +1,35 @@
 /* ========================================================================
-   YES COLLECTION — Node.js / Express server
+   YES COLLECTION — Node.js / Express server (CMS edition)
    Designed for Hostinger Application Manager (Node.js shared hosting).
 
    Public:
-   - Static files (HTML / CSS / JS / fonts / images)
-   - GET /api/health                 → uptime check
-   - GET /api/products               → catalog + categories (cached 60s)
-   - GET /api/products/:id           → single product
-   - GET /api/categories             → categories array
-   - GET /uploads/:filename          → admin-uploaded product images
-   - POST /api/contact               → contact form intake
-   - POST /api/order                 → order intake
+   - GET /api/health
+   - GET /api/products / /api/products/:id / /api/categories
+   - GET /api/settings  (read-only public view of business + contact info)
+   - GET /api/pages / /api/pages/:slug
+   - GET /uploads/:filename
+   - POST /api/contact / /api/order
 
-   Admin (cookie-based session, httpOnly):
-   - POST  /api/admin/login          → { user, password } → sets cookie
-   - POST  /api/admin/logout         → clears cookie
-   - GET   /api/admin/me             → { user: "<username>" }
-   - GET   /api/admin/products       → list (auth)
-   - POST  /api/admin/products       → create (auth)
-   - PUT   /api/admin/products/:id   → update (auth)
-   - DELETE /api/admin/products/:id  → delete (auth)
-   - POST  /api/admin/upload         → multipart `images[]`, returns { urls }
+   Admin (cookie session, bcrypt password, httpOnly):
+   - POST   /api/admin/login   /  POST /api/admin/logout  /  GET /api/admin/me
+   - GET/POST/PUT/DELETE  /api/admin/products[/:id]
+   - GET/POST/PUT/DELETE  /api/admin/categories[/:id]
+   - GET/PUT              /api/admin/settings
+   - GET/PUT              /api/admin/pages   (full document)
+   - GET/PUT              /api/admin/pages/:slug
+   - POST                 /api/admin/upload  (multipart "images")
+   - DELETE               /api/admin/upload/:filename
 
-   Admin pages (server-side routing):
-   - /admin                          → admin/index.html
+   Admin pages (server-rendered HTML):
+   - /admin                          → admin/index.html (auth)
    - /admin/login                    → admin/login.html
-   - /admin/edit  and /admin/edit/:id → admin/edit.html
+   - /admin/edit  /  /admin/edit/:id → admin/edit.html  (auth)
+   - /admin/settings                 → admin/settings.html (auth)
+   - /admin/categories               → admin/categories.html (auth)
+   - /admin/content                  → admin/content.html (auth)
+
+   Public HTML rendering: tokens like {{settings.contact.phone}} are replaced
+   from data/settings.json + data/pages.json + data/products.json before send.
    ======================================================================== */
 
 'use strict';
@@ -52,10 +56,12 @@ const DATA_DIR      = path.join(ROOT, 'data');
 const UPLOADS_DIR   = path.join(DATA_DIR, 'uploads');
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const ADMIN_FILE    = path.join(DATA_DIR, 'admin.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+const PAGES_FILE    = path.join(DATA_DIR, 'pages.json');
 const ADMIN_DIR     = path.join(ROOT, 'admin');
 
 const COOKIE_NAME  = 'yes_admin';
-const SESSION_TTL  = 12 * 60 * 60; // seconds (12h)
+const SESSION_TTL  = 12 * 60 * 60;
 const JWT_SECRET   = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
 
 const DEFAULT_ADMIN_USER = process.env.ADMIN_USERNAME || 'admin';
@@ -86,84 +92,51 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json({ limit: '512kb' }));
 
 /* -------- Cache headers -------- */
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const NO_CACHE = 'no-cache, no-store, must-revalidate';
-function setCacheHeaders(res, filePath) {
-  if (/\.html$/i.test(filePath)) {
-    res.setHeader('Cache-Control', NO_CACHE);
-  } else if (/\.(css|js|jpg|jpeg|png|webp|svg|ico|woff2?|ttf)$/i.test(filePath)) {
-    res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`);
+
+/* ========================================================================
+   STORAGE LAYER
+   ======================================================================== */
+async function readJson(file, fallback) {
+  try {
+    const raw = await fsp.readFile(file, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
   }
 }
+async function writeJson(file, data) {
+  const tmp = file + '.tmp';
+  await fsp.writeFile(tmp, JSON.stringify(data, null, 2));
+  await fsp.rename(tmp, file);
+}
 
-/* -------- Clean URL: /page.html → /page (must run BEFORE static / admin routes) -------- */
-app.get(/^\/(?!admin\/)([^/]+)\.html$/, (req, res, next) => {
-  if (req.params[0] === '404') return next();
-  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  return res.redirect(301, '/' + req.params[0] + qs);
-});
-
-/* ========================================================================
-   ADMIN PAGE ROUTES — must come BEFORE /admin static fallback
-   These serve the HTML pages that boot the AdminApp client.
-   ======================================================================== */
-app.get(['/admin', '/admin/'], requireAuthForPages('/admin/login'), (req, res) => {
-  res.setHeader('Cache-Control', NO_CACHE);
-  res.sendFile(path.join(ADMIN_DIR, 'index.html'));
-});
-app.get(['/admin/login', '/admin/login/'], (req, res) => {
-  res.setHeader('Cache-Control', NO_CACHE);
-  res.sendFile(path.join(ADMIN_DIR, 'login.html'));
-});
-app.get(['/admin/edit', '/admin/edit/', '/admin/edit/:id'], requireAuthForPages('/admin/login'), (req, res) => {
-  res.setHeader('Cache-Control', NO_CACHE);
-  res.sendFile(path.join(ADMIN_DIR, 'edit.html'));
-});
-
-/* -------- Admin static assets (css/js inside /admin/assets) -------- */
-app.use('/admin/assets', express.static(path.join(ADMIN_DIR, 'assets'), {
-  setHeaders: (res) => res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`),
-}));
-
-/* -------- Serve admin uploads -------- */
-app.use('/uploads', express.static(UPLOADS_DIR, {
-  fallthrough: true,
-  setHeaders: (res) => res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`),
-}));
-
-/* -------- Static assets (root site) -------- */
-app.use(express.static(ROOT, {
-  index: 'index.html',
-  extensions: ['html'],
-  redirect: false,
-  setHeaders: (res, p) => setCacheHeaders(res, p),
-  dotfiles: 'ignore',
-}));
-
-/* ========================================================================
-   STORAGE LAYER  (file-based JSON, suitable for Hostinger shared hosting)
-   ======================================================================== */
 async function ensureStorage() {
   await fsp.mkdir(DATA_DIR, { recursive: true });
   await fsp.mkdir(UPLOADS_DIR, { recursive: true });
 
-  try { await fsp.access(PRODUCTS_FILE); }
-  catch {
-    // Seed from products.json.example if available, else write an empty shell
-    const seedPath = path.join(DATA_DIR, 'products.json.example');
-    let seedJson;
-    try {
-      seedJson = await fsp.readFile(seedPath, 'utf8');
-      console.log('[init] Seeded products.json from products.json.example');
-    } catch {
-      seedJson = JSON.stringify({ categories: [{ id: 'all', label: 'All Pieces' }], products: [] }, null, 2);
-      console.log('[init] Created empty products.json (no seed example found)');
+  const seedFromExample = async (liveFile, exampleName, fallback) => {
+    try { await fsp.access(liveFile); }
+    catch {
+      const seedPath = path.join(DATA_DIR, exampleName);
+      try {
+        const seed = await fsp.readFile(seedPath, 'utf8');
+        await fsp.writeFile(liveFile, seed);
+        console.log(`[init] Seeded ${path.basename(liveFile)} from ${exampleName}`);
+      } catch {
+        await fsp.writeFile(liveFile, JSON.stringify(fallback, null, 2));
+        console.log(`[init] Created ${path.basename(liveFile)} from fallback (no example present)`);
+      }
     }
-    await fsp.writeFile(PRODUCTS_FILE, seedJson);
-  }
+  };
+
+  await seedFromExample(PRODUCTS_FILE, 'products.json.example', { categories: [{ id: 'all', label: 'All Pieces' }], products: [] });
+  await seedFromExample(SETTINGS_FILE, 'settings.json.example', { business: {}, contact: {}, social: {}, shipping: {} });
+  await seedFromExample(PAGES_FILE,    'pages.json.example',    { home: {}, about: {}, contact: {} });
 
   try { await fsp.access(ADMIN_FILE); }
   catch {
@@ -174,88 +147,131 @@ async function ensureStorage() {
   }
 }
 
-async function readProducts() {
-  const raw = await fsp.readFile(PRODUCTS_FILE, 'utf8');
-  return JSON.parse(raw);
-}
-async function writeProducts(data) {
-  const tmp = PRODUCTS_FILE + '.tmp';
-  await fsp.writeFile(tmp, JSON.stringify(data, null, 2));
-  await fsp.rename(tmp, PRODUCTS_FILE);
-}
-async function readAdmin() {
-  const raw = await fsp.readFile(ADMIN_FILE, 'utf8');
-  return JSON.parse(raw);
+const readProducts = () => readJson(PRODUCTS_FILE, { categories: [], products: [] });
+const writeProducts = (d) => writeJson(PRODUCTS_FILE, d);
+const readSettings = () => readJson(SETTINGS_FILE, {});
+const writeSettings = (d) => writeJson(SETTINGS_FILE, d);
+const readPages = () => readJson(PAGES_FILE, {});
+const writePages = (d) => writeJson(PAGES_FILE, d);
+const readAdmin = () => readJson(ADMIN_FILE, null);
+
+/* ========================================================================
+   TEMPLATE TOKENS — replace {{path.to.value}} in HTML before sending
+   Public read of settings + pages + products injected as one context.
+   ======================================================================== */
+async function buildContext() {
+  const [settings, pages, products] = await Promise.all([readSettings(), readPages(), readProducts()]);
+  return { settings, pages, products: products.products || [], categories: products.categories || [] };
 }
 
-function slugify(input) {
-  return String(input || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
+function getDeep(obj, dotted) {
+  if (!obj || !dotted) return undefined;
+  return dotted.split('.').reduce((acc, k) => (acc == null ? undefined : acc[k]), obj);
 }
 
-function sanitizeProduct(input, existing) {
-  const p = existing ? { ...existing } : {};
-  const fields = ['name','category','categoryLabel','badge','short','description','fabric','color'];
-  for (const f of fields) {
-    if (input[f] !== undefined) p[f] = String(input[f] ?? '').trim() || null;
-  }
-  if (input.price !== undefined) {
-    const n = Number(input.price);
-    p.price = Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
-  }
-  if (Array.isArray(input.images)) {
-    p.images = input.images.map(s => String(s).trim()).filter(Boolean).slice(0, 12);
-  }
-  if (Array.isArray(input.sizes)) {
-    p.sizes = input.sizes.map(s => String(s).trim()).filter(Boolean).slice(0, 24);
-  }
-  if (Array.isArray(input.features)) {
-    p.features = input.features.map(s => String(s).trim()).filter(Boolean).slice(0, 16);
-  }
-  if (!p.images) p.images = [];
-  if (!p.sizes) p.sizes = [];
-  if (!p.features) p.features = [];
-  return p;
+function renderTokens(html, ctx) {
+  return html.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (whole, key) => {
+    const v = getDeep(ctx, key);
+    if (v == null) return '';
+    if (typeof v === 'string' || typeof v === 'number') return String(v);
+    return ''; // arrays/objects can't be inlined as strings
+  });
 }
 
-function categoryLabelFromId(categories, id) {
-  const c = categories.find(x => x.id === id);
-  return c ? c.label : (id ? id.replace(/-/g, ' ').replace(/\b\w/g, m => m.toUpperCase()) : '');
+const tokenizedHtmlCache = new Map(); // key → { mtime, html }
+
+async function sendRendered(req, res, htmlPath, opts = {}) {
+  try {
+    const stat = await fsp.stat(htmlPath);
+    const cached = tokenizedHtmlCache.get(htmlPath);
+    let raw;
+    if (cached && cached.mtime === stat.mtimeMs) {
+      raw = cached.raw;
+    } else {
+      raw = await fsp.readFile(htmlPath, 'utf8');
+      tokenizedHtmlCache.set(htmlPath, { mtime: stat.mtimeMs, raw });
+    }
+    const ctx = await buildContext();
+    const out = renderTokens(raw, ctx);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', NO_CACHE);
+    res.status(opts.status || 200).send(out);
+  } catch (e) {
+    console.error('[render]', e);
+    res.status(500).send('Internal Server Error');
+  }
 }
 
 /* ========================================================================
-   AUTH
+   ROUTES
    ======================================================================== */
-function signSession(username) {
-  return jwt.sign({ sub: username, role: 'admin' }, JWT_SECRET, { expiresIn: SESSION_TTL });
-}
-function verifySession(token) {
-  try { return jwt.verify(token, JWT_SECRET); }
-  catch { return null; }
-}
 
-function requireAuth(req, res, next) {
-  const token = req.cookies?.[COOKIE_NAME];
-  const payload = token ? verifySession(token) : null;
-  if (!payload) return res.status(401).json({ ok: false, error: 'Not authenticated' });
-  req.user = payload;
-  next();
-}
+/* -------- Clean URL: /page.html → /page (skip admin) -------- */
+app.get(/^\/(?!admin\/)([^/]+)\.html$/, (req, res, next) => {
+  if (req.params[0] === '404') return next();
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(301, '/' + req.params[0] + qs);
+});
 
-/* For HTML pages: redirect to /admin/login if not authed */
-function requireAuthForPages(redirectTo) {
-  return (req, res, next) => {
-    const token = req.cookies?.[COOKIE_NAME];
-    const payload = token ? verifySession(token) : null;
-    if (!payload) return res.redirect(302, redirectTo);
-    req.user = payload;
-    next();
-  };
-}
+/* ========================================================================
+   ADMIN PAGE ROUTES
+   ======================================================================== */
+app.get(['/admin', '/admin/'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'index.html'));
+});
+app.get(['/admin/login', '/admin/login/'], (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'login.html'));
+});
+app.get(['/admin/edit', '/admin/edit/', '/admin/edit/:id'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'edit.html'));
+});
+app.get(['/admin/settings', '/admin/settings/'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'settings.html'));
+});
+app.get(['/admin/categories', '/admin/categories/'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'categories.html'));
+});
+app.get(['/admin/content', '/admin/content/'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'content.html'));
+});
+app.get(['/admin/media', '/admin/media/'], requireAuthForPages('/admin/login'), (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'media.html'));
+});
+
+/* -------- Admin static assets -------- */
+app.use('/admin/assets', express.static(path.join(ADMIN_DIR, 'assets'), {
+  setHeaders: (res) => res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`),
+}));
+
+/* -------- Serve admin uploads -------- */
+app.use('/uploads', express.static(UPLOADS_DIR, {
+  fallthrough: true,
+  setHeaders: (res) => res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`),
+}));
+
+/* ========================================================================
+   PUBLIC HTML PAGES (with token rendering)
+   ======================================================================== */
+const PUBLIC_PAGES = ['index', 'collection', 'product', 'cart', 'about', 'contact'];
+PUBLIC_PAGES.forEach(p => {
+  app.get('/' + p, (req, res) => sendRendered(req, res, path.join(ROOT, p + '.html')));
+});
+app.get('/', (req, res) => sendRendered(req, res, path.join(ROOT, 'index.html')));
+
+/* -------- Static assets (root site, non-HTML) -------- */
+app.use(express.static(ROOT, {
+  index: false,           // we handle index ourselves above
+  extensions: false,      // no auto .html extension (custom routes above)
+  redirect: false,
+  setHeaders: (res, p) => {
+    if (/\.html$/i.test(p)) {
+      res.setHeader('Cache-Control', NO_CACHE);
+    } else if (/\.(css|js|jpg|jpeg|png|webp|svg|ico|woff2?|ttf)$/i.test(p)) {
+      res.setHeader('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`);
+    }
+  },
+  dotfiles: 'ignore',
+}));
 
 /* ========================================================================
    PUBLIC API
@@ -267,8 +283,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/products', async (req, res, next) => {
   try {
     res.setHeader('Cache-Control', 'public, max-age=60');
-    const data = await readProducts();
-    res.json(data);
+    res.json(await readProducts());
   } catch (e) { next(e); }
 });
 
@@ -288,11 +303,32 @@ app.get('/api/products/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+app.get('/api/settings', async (req, res, next) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.json(await readSettings());
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pages', async (req, res, next) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.json(await readPages());
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pages/:slug', async (req, res, next) => {
+  try {
+    const pages = await readPages();
+    const slug = req.params.slug;
+    if (!pages[slug]) return res.status(404).json({ ok: false, error: 'Page not found' });
+    res.json(pages[slug]);
+  } catch (e) { next(e); }
+});
+
 app.post('/api/contact', (req, res) => {
   const { name, email, phone, subject, message } = req.body || {};
-  if (!name || !email || !message) {
-    return res.status(400).json({ ok: false, error: 'Missing required fields' });
-  }
+  if (!name || !email || !message) return res.status(400).json({ ok: false, error: 'Missing required fields' });
   console.log('[contact]', { name, email, phone, subject, when: new Date().toISOString() });
   res.json({ ok: true, message: 'Received — concierge will reply within 24 hours.' });
 });
@@ -307,6 +343,77 @@ app.post('/api/order', (req, res) => {
 });
 
 /* ========================================================================
+   AUTH
+   ======================================================================== */
+function signSession(username) {
+  return jwt.sign({ sub: username, role: 'admin' }, JWT_SECRET, { expiresIn: SESSION_TTL });
+}
+function verifySession(token) {
+  try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
+}
+function requireAuth(req, res, next) {
+  const token = req.cookies?.[COOKIE_NAME];
+  const payload = token ? verifySession(token) : null;
+  if (!payload) return res.status(401).json({ ok: false, error: 'Not authenticated' });
+  req.user = payload;
+  next();
+}
+function requireAuthForPages(redirectTo) {
+  return (req, res, next) => {
+    const token = req.cookies?.[COOKIE_NAME];
+    const payload = token ? verifySession(token) : null;
+    if (!payload) return res.redirect(302, redirectTo);
+    req.user = payload;
+    next();
+  };
+}
+
+function slugify(input) {
+  return String(input || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function sanitizeProduct(input, existing) {
+  const p = existing ? { ...existing } : {};
+  const fields = ['name','category','categoryLabel','badge','short','description','fabric','color'];
+  for (const f of fields) if (input[f] !== undefined) p[f] = String(input[f] ?? '').trim() || null;
+  if (input.price !== undefined) {
+    const n = Number(input.price);
+    p.price = Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
+  }
+  if (Array.isArray(input.images))   p.images   = input.images.map(s => String(s).trim()).filter(Boolean).slice(0, 12);
+  if (Array.isArray(input.sizes))    p.sizes    = input.sizes.map(s => String(s).trim()).filter(Boolean).slice(0, 24);
+  if (Array.isArray(input.features)) p.features = input.features.map(s => String(s).trim()).filter(Boolean).slice(0, 16);
+  if (!p.images) p.images = [];
+  if (!p.sizes) p.sizes = [];
+  if (!p.features) p.features = [];
+  return p;
+}
+
+function categoryLabelFromId(categories, id) {
+  const c = categories.find(x => x.id === id);
+  return c ? c.label : (id ? id.replace(/-/g, ' ').replace(/\b\w/g, m => m.toUpperCase()) : '');
+}
+
+/* Deep-merge for settings/pages updates (only own enumerable plain values). */
+function deepMerge(target, source) {
+  if (!source || typeof source !== 'object') return target;
+  for (const key of Object.keys(source)) {
+    const v = source[key];
+    if (v && typeof v === 'object' && !Array.isArray(v) && target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])) {
+      deepMerge(target[key], v);
+    } else {
+      target[key] = v;
+    }
+  }
+  return target;
+}
+
+/* ========================================================================
    ADMIN API
    ======================================================================== */
 app.post('/api/admin/login', async (req, res, next) => {
@@ -317,7 +424,7 @@ app.post('/api/admin/login', async (req, res, next) => {
     if (!username || !password) return res.status(400).json({ ok: false, error: 'Missing credentials' });
 
     const admin = await readAdmin();
-    if (admin.username !== username) return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+    if (!admin || admin.username !== username) return res.status(401).json({ ok: false, error: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, admin.passwordHash);
     if (!ok) return res.status(401).json({ ok: false, error: 'Invalid credentials' });
 
@@ -342,12 +449,10 @@ app.get('/api/admin/me', requireAuth, (req, res) => {
   res.json({ ok: true, user: req.user.sub });
 });
 
+/* -------- Products CRUD -------- */
 app.get('/api/admin/products', requireAuth, async (req, res, next) => {
-  try {
-    res.setHeader('Cache-Control', NO_CACHE);
-    const data = await readProducts();
-    res.json(data);
-  } catch (e) { next(e); }
+  try { res.setHeader('Cache-Control', NO_CACHE); res.json(await readProducts()); }
+  catch (e) { next(e); }
 });
 
 app.post('/api/admin/products', requireAuth, async (req, res, next) => {
@@ -358,11 +463,8 @@ app.post('/api/admin/products', requireAuth, async (req, res, next) => {
 
     let id = slugify(incoming.id || incoming.name);
     if (!id) return res.status(400).json({ ok: false, error: 'Could not derive an id from the name' });
-    // If the requested slug clashes, suffix with a short random token (only when user did NOT pin a custom id)
     if (data.products.some(p => p.id === id)) {
-      if (incoming.id) {
-        return res.status(409).json({ ok: false, error: 'Product id already exists — please change the slug' });
-      }
+      if (incoming.id) return res.status(409).json({ ok: false, error: 'Product id already exists — please change the slug' });
       id = id + '-' + crypto.randomBytes(3).toString('hex');
     }
     const product = sanitizeProduct(incoming, { id });
@@ -397,15 +499,126 @@ app.delete('/api/admin/products/:id', requireAuth, async (req, res, next) => {
     const data = await readProducts();
     const before = data.products.length;
     data.products = data.products.filter(p => p.id !== req.params.id);
-    if (data.products.length === before) {
-      return res.status(404).json({ ok: false, error: 'Product not found' });
-    }
+    if (data.products.length === before) return res.status(404).json({ ok: false, error: 'Product not found' });
     await writeProducts(data);
     res.json({ ok: true, removed: req.params.id });
   } catch (e) { next(e); }
 });
 
-/* -------- Image upload (multer, multiple files via field "images") -------- */
+/* -------- Categories CRUD -------- */
+app.get('/api/admin/categories', requireAuth, async (req, res, next) => {
+  try { res.setHeader('Cache-Control', NO_CACHE); const d = await readProducts(); res.json(d.categories || []); }
+  catch (e) { next(e); }
+});
+
+app.post('/api/admin/categories', requireAuth, async (req, res, next) => {
+  try {
+    const { id, label } = req.body || {};
+    if (!label) return res.status(400).json({ ok: false, error: 'Label is required' });
+    const finalId = slugify(id || label);
+    if (!finalId) return res.status(400).json({ ok: false, error: 'Could not derive id' });
+    const data = await readProducts();
+    if ((data.categories || []).some(c => c.id === finalId)) {
+      return res.status(409).json({ ok: false, error: 'Category id already exists' });
+    }
+    data.categories = data.categories || [];
+    data.categories.push({ id: finalId, label: String(label).trim() });
+    await writeProducts(data);
+    res.status(201).json({ ok: true, category: { id: finalId, label } });
+  } catch (e) { next(e); }
+});
+
+app.put('/api/admin/categories/:id', requireAuth, async (req, res, next) => {
+  try {
+    const data = await readProducts();
+    const idx = (data.categories || []).findIndex(c => c.id === req.params.id);
+    if (idx < 0) return res.status(404).json({ ok: false, error: 'Category not found' });
+    const { label } = req.body || {};
+    if (!label) return res.status(400).json({ ok: false, error: 'Label is required' });
+    data.categories[idx].label = String(label).trim();
+    // Cascade: update categoryLabel on every product in this category
+    (data.products || []).forEach(p => { if (p.category === req.params.id) p.categoryLabel = data.categories[idx].label; });
+    await writeProducts(data);
+    res.json({ ok: true, category: data.categories[idx] });
+  } catch (e) { next(e); }
+});
+
+app.delete('/api/admin/categories/:id', requireAuth, async (req, res, next) => {
+  try {
+    if (req.params.id === 'all') return res.status(400).json({ ok: false, error: 'Cannot delete the "all" pseudo-category' });
+    const data = await readProducts();
+    const before = (data.categories || []).length;
+    data.categories = (data.categories || []).filter(c => c.id !== req.params.id);
+    if (data.categories.length === before) return res.status(404).json({ ok: false, error: 'Category not found' });
+    // Optional: products keep their stale category; admin should re-assign in product editor.
+    await writeProducts(data);
+    res.json({ ok: true, removed: req.params.id });
+  } catch (e) { next(e); }
+});
+
+/* -------- Settings -------- */
+app.get('/api/admin/settings', requireAuth, async (req, res, next) => {
+  try { res.setHeader('Cache-Control', NO_CACHE); res.json(await readSettings()); }
+  catch (e) { next(e); }
+});
+
+app.put('/api/admin/settings', requireAuth, async (req, res, next) => {
+  try {
+    const current = await readSettings();
+    const merged = deepMerge({ ...current }, req.body || {});
+    // Auto-derive phoneTel from phone if changed
+    if (merged.contact?.phone && (!merged.contact.phoneTel || req.body?.contact?.phone)) {
+      merged.contact.phoneTel = '+' + String(merged.contact.phone).replace(/\D/g, '');
+    }
+    if (merged.contact?.whatsapp && (!merged.social || !merged.social.whatsappLink || req.body?.contact?.whatsapp)) {
+      merged.social = merged.social || {};
+      merged.social.whatsappLink = 'https://wa.me/' + String(merged.contact.whatsapp).replace(/\D/g, '');
+    }
+    await writeSettings(merged);
+    tokenizedHtmlCache.clear(); // settings power token rendering — force re-read
+    res.json({ ok: true, settings: merged });
+  } catch (e) { next(e); }
+});
+
+/* -------- Pages -------- */
+app.get('/api/admin/pages', requireAuth, async (req, res, next) => {
+  try { res.setHeader('Cache-Control', NO_CACHE); res.json(await readPages()); }
+  catch (e) { next(e); }
+});
+
+app.put('/api/admin/pages', requireAuth, async (req, res, next) => {
+  try {
+    const incoming = req.body || {};
+    if (typeof incoming !== 'object' || Array.isArray(incoming)) {
+      return res.status(400).json({ ok: false, error: 'Body must be an object' });
+    }
+    const current = await readPages();
+    const merged = deepMerge({ ...current }, incoming);
+    await writePages(merged);
+    tokenizedHtmlCache.clear();
+    res.json({ ok: true, pages: merged });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/admin/pages/:slug', requireAuth, async (req, res, next) => {
+  try {
+    const pages = await readPages();
+    res.json(pages[req.params.slug] || {});
+  } catch (e) { next(e); }
+});
+
+app.put('/api/admin/pages/:slug', requireAuth, async (req, res, next) => {
+  try {
+    const pages = await readPages();
+    pages[req.params.slug] = pages[req.params.slug] || {};
+    deepMerge(pages[req.params.slug], req.body || {});
+    await writePages(pages);
+    tokenizedHtmlCache.clear();
+    res.json({ ok: true, page: pages[req.params.slug] });
+  } catch (e) { next(e); }
+});
+
+/* -------- Image upload -------- */
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => cb(null, UPLOADS_DIR),
@@ -416,7 +629,7 @@ const upload = multer({
       cb(null, `${Date.now().toString(36)}-${id}-${safeBase}${ext}`);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024, files: 8 }, // 5 MB per file, max 8 per request
+  limits: { fileSize: 5 * 1024 * 1024, files: 8 },
   fileFilter: (req, file, cb) => {
     const ok = /^image\/(jpe?g|png|webp|gif)$/.test(file.mimetype);
     cb(ok ? null : new Error('Only JPEG, PNG, WebP, or GIF images are allowed'), ok);
@@ -433,21 +646,42 @@ app.post('/api/admin/upload', requireAuth, (req, res) => {
   });
 });
 
+/* -------- Media library -------- */
+app.get('/api/admin/media', requireAuth, async (req, res, next) => {
+  try {
+    const entries = await fsp.readdir(UPLOADS_DIR);
+    const items = await Promise.all(entries.filter(n => !n.startsWith('.')).map(async (name) => {
+      const stat = await fsp.stat(path.join(UPLOADS_DIR, name));
+      return { name, url: '/uploads/' + name, size: stat.size, mtime: stat.mtimeMs };
+    }));
+    items.sort((a, b) => b.mtime - a.mtime);
+    res.json({ ok: true, items });
+  } catch (e) { next(e); }
+});
+
+app.delete('/api/admin/upload/:filename', requireAuth, async (req, res, next) => {
+  try {
+    const safe = path.basename(req.params.filename);
+    if (!safe || safe.startsWith('.')) return res.status(400).json({ ok: false, error: 'Bad filename' });
+    await fsp.unlink(path.join(UPLOADS_DIR, safe));
+    res.json({ ok: true, removed: safe });
+  } catch (e) {
+    if (e.code === 'ENOENT') return res.status(404).json({ ok: false, error: 'File not found' });
+    next(e);
+  }
+});
+
 /* ========================================================================
    404 / Error handlers
    ======================================================================== */
 app.use((req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ ok: false, error: 'Not found' });
-  }
+  if (req.path.startsWith('/api/')) return res.status(404).json({ ok: false, error: 'Not found' });
   res.status(404).sendFile(path.join(ROOT, '404.html'));
 });
 
 app.use((err, req, res, next) => {
   console.error('[error]', err);
-  if (req.path.startsWith('/api/')) {
-    return res.status(500).json({ ok: false, error: 'Internal error' });
-  }
+  if (req.path.startsWith('/api/')) return res.status(500).json({ ok: false, error: 'Internal error' });
   res.status(500).send('Internal Server Error');
 });
 

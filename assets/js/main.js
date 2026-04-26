@@ -328,8 +328,8 @@
       // Checkout
       const cta = document.getElementById('checkout-wa');
       if (cta) {
-        cta.addEventListener('click', () => {
-          const url = window.YES_CART.buildWhatsAppOrder();
+        cta.addEventListener('click', async () => {
+          const url = await window.YES_CART.buildWhatsAppOrder();
           if (url) window.open(url, '_blank');
         });
       }

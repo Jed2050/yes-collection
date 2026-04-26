@@ -438,6 +438,265 @@
     loadProduct();
   }
 
+  /* ========================================================================
+     SETTINGS (CMS)
+     - Reads/writes data/settings.json via /api/admin/settings
+     - Form fields use [data-path="dot.notation"] for binding
+     ======================================================================== */
+  function pathSet(obj, dotted, value) {
+    const keys = dotted.split('.');
+    let ref = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const k = keys[i];
+      if (ref[k] == null || typeof ref[k] !== 'object') ref[k] = (/^\d+$/.test(keys[i+1])) ? [] : {};
+      ref = ref[k];
+    }
+    ref[keys[keys.length - 1]] = value;
+  }
+  function pathGet(obj, dotted) {
+    return dotted.split('.').reduce((acc, k) => (acc == null ? undefined : acc[k]), obj);
+  }
+  function fillForm(rootSel, data) {
+    document.querySelectorAll(`${rootSel} [data-path]`).forEach(el => {
+      const v = pathGet(data, el.dataset.path);
+      if (v == null) return;
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+        el.value = String(v);
+      }
+    });
+  }
+  function collectForm(rootSel) {
+    const out = {};
+    document.querySelectorAll(`${rootSel} [data-path]`).forEach(el => {
+      let v = el.value;
+      if (el.type === 'number') v = v === '' ? null : Number(v);
+      pathSet(out, el.dataset.path, v);
+    });
+    return out;
+  }
+
+  function settings() {
+    bindCommon();
+    const form = document.getElementById('settings-form');
+    if (!form) return;
+
+    api('/api/admin/settings').then(data => fillForm('#settings-form', data || {})).catch(err => toast(err.message, 'error'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = collectForm('#settings-form');
+      try {
+        await api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+        toast('Settings saved', 'success');
+        // Reload to surface auto-derived fields (phoneTel, whatsappLink)
+        const fresh = await api('/api/admin/settings');
+        fillForm('#settings-form', fresh || {});
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  }
+
+  /* ========================================================================
+     CATEGORIES
+     ======================================================================== */
+  function categories() {
+    bindCommon();
+    const form    = document.getElementById('cat-form');
+    const list    = document.getElementById('cat-list');
+    const meta    = document.getElementById('cat-meta');
+    const inLabel = document.getElementById('cat-label');
+    const inId    = document.getElementById('cat-id');
+
+    let cats = [];
+
+    function paint() {
+      meta.textContent = `${cats.length} categor${cats.length === 1 ? 'y' : 'ies'}`;
+      list.innerHTML = cats.map(c => `
+        <div class="cat-row" data-id="${escapeHtml(c.id)}">
+          <div class="cat-info">
+            <input type="text" class="cat-input" value="${escapeHtml(c.label)}" data-id="${escapeHtml(c.id)}">
+            <code class="cat-id">${escapeHtml(c.id)}</code>
+          </div>
+          <div class="cat-actions">
+            <button type="button" class="btn btn-ghost btn-sm" data-act="save" data-id="${escapeHtml(c.id)}">Save</button>
+            ${c.id === 'all' ? '' : `<button type="button" class="btn btn-danger btn-sm" data-act="delete" data-id="${escapeHtml(c.id)}">Delete</button>`}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function load() {
+      try {
+        cats = await api('/api/admin/categories');
+        paint();
+      } catch (err) { toast(err.message, 'error'); }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const label = inLabel.value.trim();
+      const id    = inId.value.trim();
+      if (!label) return;
+      try {
+        await api('/api/admin/categories', { method: 'POST', body: JSON.stringify({ label, id }) });
+        toast('Category added', 'success');
+        inLabel.value = ''; inId.value = '';
+        await load();
+      } catch (err) { toast(err.message, 'error'); }
+    });
+
+    list.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const id  = btn.dataset.id;
+      const act = btn.dataset.act;
+      const row = btn.closest('.cat-row');
+      const input = row.querySelector('.cat-input');
+      if (act === 'save') {
+        const label = input.value.trim();
+        if (!label) return;
+        try {
+          await api('/api/admin/categories/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify({ label }) });
+          toast('Saved', 'success');
+          await load();
+        } catch (err) { toast(err.message, 'error'); }
+      }
+      if (act === 'delete') {
+        const ok = await confirmAsync(`Delete category "${id}"? Products in this category will keep their existing label until you re-assign them.`);
+        if (!ok) return;
+        try {
+          await api('/api/admin/categories/' + encodeURIComponent(id), { method: 'DELETE' });
+          toast('Category removed', 'success');
+          await load();
+        } catch (err) { toast(err.message, 'error'); }
+      }
+    });
+
+    load();
+  }
+
+  /* ========================================================================
+     CONTENT (page copy)
+     ======================================================================== */
+  function content() {
+    bindCommon();
+    const form = document.getElementById('content-form');
+    if (!form) return;
+
+    // Tab switcher
+    document.querySelectorAll('#tab-bar .tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tab-bar .tab').forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-pane').forEach(p => {
+          p.hidden = p.dataset.pane !== btn.dataset.tab;
+          p.classList.toggle('active', p.dataset.pane === btn.dataset.tab);
+        });
+      });
+    });
+
+    api('/api/admin/pages').then(data => fillForm('#content-form', data || {})).catch(err => toast(err.message, 'error'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = collectForm('#content-form');
+      try {
+        await api('/api/admin/pages', { method: 'PUT', body: JSON.stringify(payload) });
+        toast('Page content saved', 'success');
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  }
+
+  /* ========================================================================
+     MEDIA library
+     ======================================================================== */
+  function media() {
+    bindCommon();
+    const grid     = document.getElementById('media-grid');
+    const meta     = document.getElementById('media-meta');
+    const fileIn   = document.getElementById('media-upload');
+    const upBtn    = document.getElementById('media-upload-btn');
+
+    let items = [];
+
+    function fmtSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    function paint() {
+      meta.textContent = `${items.length} file${items.length === 1 ? '' : 's'}`;
+      if (!items.length) {
+        grid.innerHTML = `<div class="empty"><h3>No uploads yet</h3><p>Upload images here or from the product editor.</p></div>`;
+        return;
+      }
+      grid.innerHTML = items.map(it => `
+        <div class="media-item">
+          <a class="media-thumb" href="${escapeHtml(it.url)}" target="_blank" rel="noopener">
+            <img src="${escapeHtml(it.url)}" alt="" loading="lazy">
+          </a>
+          <div class="media-meta">
+            <div class="media-name" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</div>
+            <div class="media-sub">${fmtSize(it.size)}</div>
+          </div>
+          <div class="media-tools">
+            <button type="button" class="btn btn-ghost btn-sm" data-copy="${escapeHtml(it.url)}">Copy URL</button>
+            <button type="button" class="btn btn-danger btn-sm" data-delete="${escapeHtml(it.name)}">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function load() {
+      try {
+        const data = await api('/api/admin/media');
+        items = data.items || [];
+        paint();
+      } catch (err) { toast(err.message, 'error'); }
+    }
+
+    upBtn.addEventListener('click', () => fileIn.click());
+    fileIn.addEventListener('change', async (e) => {
+      const files = e.target.files;
+      if (!files || !files.length) return;
+      const fd = new FormData();
+      [...files].forEach(f => fd.append('images', f));
+      try {
+        upBtn.disabled = true;
+        upBtn.innerHTML = '<span class="spinner"></span> Uploading…';
+        await api('/api/admin/upload', { method: 'POST', body: fd });
+        toast('Uploaded', 'success');
+        await load();
+      } catch (err) { toast(err.message, 'error'); }
+      finally {
+        upBtn.disabled = false;
+        upBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M12 16V4M6 10l6-6 6 6M4 20h16" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Upload images';
+        fileIn.value = '';
+      }
+    });
+
+    grid.addEventListener('click', async (e) => {
+      const copyBtn = e.target.closest('button[data-copy]');
+      const delBtn  = e.target.closest('button[data-delete]');
+      if (copyBtn) {
+        const url = window.location.origin + copyBtn.dataset.copy;
+        try { await navigator.clipboard.writeText(url); toast('URL copied', 'success'); }
+        catch { toast('Copy failed — select manually', 'error'); }
+      }
+      if (delBtn) {
+        const name = delBtn.dataset.delete;
+        const ok = await confirmAsync(`Delete "${name}"? If a product still references this image, it will appear broken.`);
+        if (!ok) return;
+        try {
+          await api('/api/admin/upload/' + encodeURIComponent(name), { method: 'DELETE' });
+          toast('Deleted', 'success');
+          await load();
+        } catch (err) { toast(err.message, 'error'); }
+      }
+    });
+
+    load();
+  }
+
   /* ---------- Public API ---------- */
-  window.AdminApp = { dashboard, editor };
+  window.AdminApp = { dashboard, editor, settings, categories, content, media };
 })();

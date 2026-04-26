@@ -1,0 +1,70 @@
+{
+  "home": {
+    "heroEyebrow": "House N°1 · Est. MMXXV",
+    "heroHeadlineLeft": "The art of",
+    "heroHeadlineGold": "arriving",
+    "heroHeadlineRight": "with intention.",
+    "heroLede": "A bespoke atelier of tuxedos, three-piece suits and ceremonial menswear — engineered for the moments that define a life.",
+    "heroTaglineWords": ["Elevated", "Refined", "Set Apart"],
+    "heroVisualImage": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1200&q=80",
+    "heroVisualName": "Royal Noir Tuxedo",
+    "heroVisualMeta": "N° 001 · Signature",
+    "marquee": ["Bespoke Craftsmanship", "Italian Wool", "Hand-Stitched Canvas", "By Appointment"],
+    "featuredEyebrow": "The Signature",
+    "featuredTitle": "Pieces that<br>open doors.",
+    "featuredLede": "Three foundational silhouettes — selected this season for those who understand that the suit is the first sentence one speaks in any room.",
+    "storyEyebrow": "The Maison",
+    "storyTitle": "A house built<br>on <span class=\"text-gold italic-serif\">precision</span>.",
+    "storyImage": "https://images.unsplash.com/photo-1593030103066-0093718efeb9?auto=format&fit=crop&w=1100&q=80",
+    "storyLede": "Every YES Collection garment begins with a single measurement and ends with a hand-stitched signature. Our atelier exists to give shape to ambition — one canvas, one shoulder, one client at a time.",
+    "stats": [
+      { "num": "42", "label": "Hand-stitch hours per piece" },
+      { "num": "300+", "label": "Premium fabrics in-house" },
+      { "num": "4", "label": "Master tailors on staff" },
+      { "num": "∞", "label": "Lifetime alterations" }
+    ],
+    "testimonialQuote": "When I walked into that room wearing the Royal Noir, the conversation changed before I even sat down. The suit spoke first.",
+    "testimonialAuthor": "Marc-André D.",
+    "testimonialRole": "Tuxedo Client",
+    "ctaEyebrow": "The Inner Circle",
+    "ctaTitle": "Be the <span class=\"text-gold italic-serif\">first</span><br>to know.",
+    "ctaLede": "Private previews, atelier invitations, and quiet drops — reserved for our list."
+  },
+  "about": {
+    "heroEyebrow": "The Maison",
+    "heroTitle": "A house built<br>on <span class=\"text-gold italic-serif\">precision</span>.",
+    "heroLede": "YES Collection is not a label — it is a discipline. Every piece begins with a single measurement and ends with a hand-stitched signature. We exist to give shape to ambition.",
+    "originEyebrow": "Our Origin",
+    "originTitle": "From a single<br>fitting room.",
+    "originParagraphs": [
+      "The house was founded on a refusal — a refusal to accept that a man should compromise between fit, soul, and time. We started with one tailor, one client, one piece. The discipline has not changed.",
+      "Today, our atelier serves a small, intentional roster of clients across the Caribbean and beyond — heads of state, performers, grooms, and the quietly extraordinary. Each garment is treated as the only one we will make this week."
+    ],
+    "values": [
+      {
+        "title": "Uncompromised Material",
+        "body": "We source exclusively from the mills of Biella, Yorkshire and Como. Italian Super 130s wool, English worsted, mulberry silk, mother-of-pearl. No substitutions, ever."
+      },
+      {
+        "title": "Hand Over Machine",
+        "body": "Forty-two hours of hand-stitching per piece. Half-canvas chest construction. Working surgeon cuffs. Pick-stitched lapels. The shortcuts that make modern suits cheap are the shortcuts we refuse."
+      },
+      {
+        "title": "For a Lifetime",
+        "body": "Every YES garment includes lifetime alterations. As your body changes, the suit follows. As fashion turns, the cut endures. We are not in the business of disposable elegance."
+      }
+    ],
+    "process": [
+      { "title": "Consult",   "body": "A private 90-minute session with a master tailor. Fabric, silhouette, intention." },
+      { "title": "Measure",   "body": "Twenty-eight individual measurements taken by hand. No estimations, no shortcuts." },
+      { "title": "Construct", "body": "Forty-two hours of hand-stitching. Half-canvas chest piece. Cut, basted, refined." },
+      { "title": "Deliver",   "body": "Final fitting, signed certificate of authenticity, lifetime alterations included." }
+    ]
+  },
+  "contact": {
+    "heroEyebrow": "Begin the Conversation",
+    "heroTitle": "Book the<br><span class=\"text-gold italic-serif\">Atelier</span>",
+    "heroLede": "Private consultations are by appointment only. Our concierge will respond within 24 hours to confirm your preferred date.",
+    "innerCircleNote": "For wedding parties, corporate orders or international clients, please indicate your preference in the message field. A senior consultant will be assigned."
+  }
+}

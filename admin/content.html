@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<title>Page Content · YES COLLECTION</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230A0A0A'/%3E%3Ctext x='50' y='66' font-family='Cinzel,serif' font-size='44' font-weight='700' text-anchor='middle' fill='%23D4AF37'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <a href="/admin" class="sidebar-brand">
+      <div class="mark">Y</div>
+      <div class="name">YES Atelier</div>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="/admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10M7 12h10M7 17h6" stroke-linecap="round"/></svg>
+        <span>Categories</span>
+      </a>
+      <a href="/admin/content" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round"/></svg>
+        <span>Page Content</span>
+      </a>
+      <a href="/admin/media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Media</span>
+      </a>
+      <a href="/admin/settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        <span>Settings</span>
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4h6v6M20 4l-9 9M5 5h6v2H5v12h12v-6h2v8H3V5h2z" stroke-linejoin="round"/></svg>
+        <span>View Site</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="user-label">—</span>
+      <a href="#" id="logout">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-head">
+      <div>
+        <h1>Page Content</h1>
+        <div class="meta">Edit copy on the homepage, atelier, and contact pages.</div>
+      </div>
+    </header>
+
+    <div class="tab-bar" id="tab-bar">
+      <button type="button" class="tab active" data-tab="home">Home</button>
+      <button type="button" class="tab" data-tab="about">Atelier</button>
+      <button type="button" class="tab" data-tab="contact">Contact</button>
+    </div>
+
+    <form id="content-form">
+      <!-- HOME -->
+      <div class="tab-pane active" data-pane="home">
+        <div class="section-card">
+          <h3>Hero</h3>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label>Eyebrow</label>
+              <input type="text" data-path="home.heroEyebrow">
+            </div>
+            <div class="field">
+              <label>Headline — left part</label>
+              <input type="text" data-path="home.heroHeadlineLeft" placeholder="The art of">
+            </div>
+            <div class="field">
+              <label>Headline — gold word</label>
+              <input type="text" data-path="home.heroHeadlineGold" placeholder="arriving">
+            </div>
+            <div class="field span-2">
+              <label>Headline — right part</label>
+              <input type="text" data-path="home.heroHeadlineRight" placeholder="with intention.">
+            </div>
+            <div class="field span-2">
+              <label>Lede paragraph</label>
+              <textarea rows="3" data-path="home.heroLede"></textarea>
+            </div>
+            <div class="field span-2">
+              <label>Hero visual image URL</label>
+              <input type="text" data-path="home.heroVisualImage">
+            </div>
+            <div class="field">
+              <label>Hero image caption</label>
+              <input type="text" data-path="home.heroVisualName">
+            </div>
+            <div class="field">
+              <label>Hero image meta</label>
+              <input type="text" data-path="home.heroVisualMeta">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Featured section</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Eyebrow</label>
+              <input type="text" data-path="home.featuredEyebrow">
+            </div>
+            <div class="field">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="home.featuredTitle">
+            </div>
+            <div class="field span-2">
+              <label>Lede</label>
+              <textarea rows="2" data-path="home.featuredLede"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Story split</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Eyebrow</label>
+              <input type="text" data-path="home.storyEyebrow">
+            </div>
+            <div class="field">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="home.storyTitle">
+            </div>
+            <div class="field span-2">
+              <label>Image URL</label>
+              <input type="text" data-path="home.storyImage">
+            </div>
+            <div class="field span-2">
+              <label>Lede</label>
+              <textarea rows="3" data-path="home.storyLede"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Testimonial</h3>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label>Quote</label>
+              <textarea rows="3" data-path="home.testimonialQuote"></textarea>
+            </div>
+            <div class="field">
+              <label>Author</label>
+              <input type="text" data-path="home.testimonialAuthor">
+            </div>
+            <div class="field">
+              <label>Author role</label>
+              <input type="text" data-path="home.testimonialRole">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Newsletter CTA</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Eyebrow</label>
+              <input type="text" data-path="home.ctaEyebrow">
+            </div>
+            <div class="field">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="home.ctaTitle">
+            </div>
+            <div class="field span-2">
+              <label>Lede</label>
+              <textarea rows="2" data-path="home.ctaLede"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="tab-pane" data-pane="about" hidden>
+        <div class="section-card">
+          <h3>Hero</h3>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label>Eyebrow</label>
+              <input type="text" data-path="about.heroEyebrow">
+            </div>
+            <div class="field span-2">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="about.heroTitle">
+            </div>
+            <div class="field span-2">
+              <label>Lede</label>
+              <textarea rows="3" data-path="about.heroLede"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Origin story</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Eyebrow</label>
+              <input type="text" data-path="about.originEyebrow">
+            </div>
+            <div class="field">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="about.originTitle">
+            </div>
+            <div class="field span-2">
+              <label>Paragraph 1</label>
+              <textarea rows="3" data-path="about.originParagraphs.0"></textarea>
+            </div>
+            <div class="field span-2">
+              <label>Paragraph 2</label>
+              <textarea rows="3" data-path="about.originParagraphs.1"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Three commitments</h3>
+          <div class="field-grid">
+            <div class="field"><label>Value 1 — title</label><input type="text" data-path="about.values.0.title"></div>
+            <div class="field"><label>Value 1 — body</label><textarea rows="2" data-path="about.values.0.body"></textarea></div>
+            <div class="field"><label>Value 2 — title</label><input type="text" data-path="about.values.1.title"></div>
+            <div class="field"><label>Value 2 — body</label><textarea rows="2" data-path="about.values.1.body"></textarea></div>
+            <div class="field"><label>Value 3 — title</label><input type="text" data-path="about.values.2.title"></div>
+            <div class="field"><label>Value 3 — body</label><textarea rows="2" data-path="about.values.2.body"></textarea></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Process — 4 stages</h3>
+          <div class="field-grid">
+            <div class="field"><label>Step 1 — title</label><input type="text" data-path="about.process.0.title"></div>
+            <div class="field"><label>Step 1 — body</label><input type="text" data-path="about.process.0.body"></div>
+            <div class="field"><label>Step 2 — title</label><input type="text" data-path="about.process.1.title"></div>
+            <div class="field"><label>Step 2 — body</label><input type="text" data-path="about.process.1.body"></div>
+            <div class="field"><label>Step 3 — title</label><input type="text" data-path="about.process.2.title"></div>
+            <div class="field"><label>Step 3 — body</label><input type="text" data-path="about.process.2.body"></div>
+            <div class="field"><label>Step 4 — title</label><input type="text" data-path="about.process.3.title"></div>
+            <div class="field"><label>Step 4 — body</label><input type="text" data-path="about.process.3.body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="tab-pane" data-pane="contact" hidden>
+        <div class="section-card">
+          <h3>Hero</h3>
+          <div class="field-grid">
+            <div class="field span-2">
+              <label>Eyebrow</label>
+              <input type="text" data-path="contact.heroEyebrow">
+            </div>
+            <div class="field span-2">
+              <label>Title (HTML allowed)</label>
+              <input type="text" data-path="contact.heroTitle">
+            </div>
+            <div class="field span-2">
+              <label>Lede</label>
+              <textarea rows="3" data-path="contact.heroLede"></textarea>
+            </div>
+            <div class="field span-2">
+              <label>"Inner Circle" note</label>
+              <textarea rows="3" data-path="contact.innerCircleNote"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-foot">
+        <div></div>
+        <div class="right">
+          <button type="submit" class="btn btn-primary"><span id="save-label">Save Content</span></button>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script src="/admin/assets/admin.js"></script>
+<script>AdminApp.content();</script>
+</body>
+</html>

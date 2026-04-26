@@ -31,8 +31,10 @@ data/uploads/*
 *.bak
 *-backup/
 
-# Live data (admin edits) — seeded from products.json.example on first boot
+# Live data (admin edits) — seeded from *.example on first boot
 data/products.json
+data/settings.json
+data/pages.json
 
 # Uploaded product images (admin uploads) — keep folder, ignore contents
 assets/img/products/*

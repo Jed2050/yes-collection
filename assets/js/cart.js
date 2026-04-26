@@ -82,11 +82,26 @@
     toast._t = setTimeout(() => toast.classList.remove('show'), 2400);
   }
 
-  /* WhatsApp checkout — generates a pre-filled order message
-     IMPORTANT: replace WA_NUMBER with the real business WhatsApp number (no +) */
-  const WA_NUMBER = '15618091720'; // <-- REPLACE THIS
+  /* WhatsApp checkout — number is fetched from /api/settings (admin-editable).
+     Falls back to a static value if the settings API fails. */
+  const WA_FALLBACK = '15618091720';
+  let waNumberCache = null;
 
-  function buildWhatsAppOrder() {
+  async function getWhatsAppNumber() {
+    if (waNumberCache) return waNumberCache;
+    try {
+      const res = await fetch('/api/settings', { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error('settings ' + res.status);
+      const s = await res.json();
+      const num = (s?.contact?.whatsapp || '').replace(/\D/g, '');
+      waNumberCache = num || WA_FALLBACK;
+    } catch {
+      waNumberCache = WA_FALLBACK;
+    }
+    return waNumberCache;
+  }
+
+  async function buildWhatsAppOrder() {
     const items = read();
     if (!items.length) return null;
 
@@ -106,7 +121,8 @@
     msg += `*TOTAL: ${window.YES_HELPERS.formatPrice(totalSum)}*%0A%0A`;
     msg += '— Sent from yescollection.com —';
 
-    return `https://wa.me/${WA_NUMBER}?text=${msg}`;
+    const num = await getWhatsAppNumber();
+    return `https://wa.me/${num}?text=${msg}`;
   }
 
   /* ===== Public API ===== */

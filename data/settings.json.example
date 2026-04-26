@@ -1,0 +1,34 @@
+{
+  "business": {
+    "name": "YES Collection",
+    "tagline": "Elevated. Refined. Set Apart.",
+    "description": "A bespoke menswear atelier dedicated to the art of arriving with intention.",
+    "established": "MMXXV"
+  },
+  "contact": {
+    "phone": "+1 561 809 1720",
+    "phoneTel": "+15618091720",
+    "whatsapp": "15618091720",
+    "email": "contact@yescollection.com",
+    "address": {
+      "line1": "YES Collection Atelier",
+      "line2": "Rue de l'Élégance, N° 7",
+      "city": "Pétion-Ville",
+      "country": "Haïti"
+    },
+    "hours": {
+      "weekdays": "Tuesday — Saturday",
+      "times": "10:00 — 19:00",
+      "note": "Sunday & Monday by appointment"
+    }
+  },
+  "social": {
+    "instagram": "",
+    "facebook": "",
+    "whatsappLink": "https://wa.me/15618091720"
+  },
+  "shipping": {
+    "freeThreshold": 1000,
+    "flatRate": 45
+  }
+}

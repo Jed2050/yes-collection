@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<title>Settings · YES COLLECTION</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230A0A0A'/%3E%3Ctext x='50' y='66' font-family='Cinzel,serif' font-size='44' font-weight='700' text-anchor='middle' fill='%23D4AF37'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <a href="/admin" class="sidebar-brand">
+      <div class="mark">Y</div>
+      <div class="name">YES Atelier</div>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="/admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10M7 12h10M7 17h6" stroke-linecap="round"/></svg>
+        <span>Categories</span>
+      </a>
+      <a href="/admin/content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round"/></svg>
+        <span>Page Content</span>
+      </a>
+      <a href="/admin/media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Media</span>
+      </a>
+      <a href="/admin/settings" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        <span>Settings</span>
+      </a>
+      <a href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4h6v6M20 4l-9 9M5 5h6v2H5v12h12v-6h2v8H3V5h2z" stroke-linejoin="round"/></svg>
+        <span>View Site</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="user-label">—</span>
+      <a href="#" id="logout">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-head">
+      <div>
+        <h1>Settings</h1>
+        <div class="meta">Business identity, contact, social, shipping</div>
+      </div>
+    </header>
+
+    <form id="settings-form">
+      <div class="section-card">
+        <h3>Business Identity</h3>
+        <div class="field-grid">
+          <div class="field span-2">
+            <label for="biz-name">Business name</label>
+            <input id="biz-name" type="text" data-path="business.name">
+          </div>
+          <div class="field span-2">
+            <label for="biz-tagline">Tagline</label>
+            <input id="biz-tagline" type="text" data-path="business.tagline" placeholder="Elevated. Refined. Set Apart.">
+          </div>
+          <div class="field span-2">
+            <label for="biz-desc">Short description (used in footer)</label>
+            <textarea id="biz-desc" data-path="business.description" rows="2"></textarea>
+          </div>
+          <div class="field">
+            <label for="biz-est">Established</label>
+            <input id="biz-est" type="text" data-path="business.established" placeholder="MMXXV">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Contact &amp; WhatsApp</h3>
+        <div class="field-grid">
+          <div class="field">
+            <label for="ct-phone">Display phone</label>
+            <input id="ct-phone" type="text" data-path="contact.phone" placeholder="+1 561 809 1720">
+          </div>
+          <div class="field">
+            <label for="ct-whatsapp">WhatsApp number (no + or spaces)</label>
+            <input id="ct-whatsapp" type="text" data-path="contact.whatsapp" placeholder="15618091720">
+          </div>
+          <div class="field span-2">
+            <label for="ct-email">Email</label>
+            <input id="ct-email" type="email" data-path="contact.email" placeholder="contact@yescollection.com">
+          </div>
+          <div class="field span-2">
+            <label for="ct-line1">Address — line 1</label>
+            <input id="ct-line1" type="text" data-path="contact.address.line1">
+          </div>
+          <div class="field span-2">
+            <label for="ct-line2">Address — line 2</label>
+            <input id="ct-line2" type="text" data-path="contact.address.line2">
+          </div>
+          <div class="field">
+            <label for="ct-city">City</label>
+            <input id="ct-city" type="text" data-path="contact.address.city">
+          </div>
+          <div class="field">
+            <label for="ct-country">Country</label>
+            <input id="ct-country" type="text" data-path="contact.address.country">
+          </div>
+          <div class="field">
+            <label for="ct-hours-days">Open days</label>
+            <input id="ct-hours-days" type="text" data-path="contact.hours.weekdays" placeholder="Tuesday — Saturday">
+          </div>
+          <div class="field">
+            <label for="ct-hours-times">Open times</label>
+            <input id="ct-hours-times" type="text" data-path="contact.hours.times" placeholder="10:00 — 19:00">
+          </div>
+          <div class="field span-2">
+            <label for="ct-hours-note">Hours note</label>
+            <input id="ct-hours-note" type="text" data-path="contact.hours.note" placeholder="Sunday & Monday by appointment">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Social Links</h3>
+        <div class="field-grid">
+          <div class="field">
+            <label for="sc-ig">Instagram URL</label>
+            <input id="sc-ig" type="url" data-path="social.instagram" placeholder="https://instagram.com/…">
+          </div>
+          <div class="field">
+            <label for="sc-fb">Facebook URL</label>
+            <input id="sc-fb" type="url" data-path="social.facebook" placeholder="https://facebook.com/…">
+          </div>
+          <div class="field span-2">
+            <label for="sc-wa">WhatsApp link (auto-derived from phone)</label>
+            <input id="sc-wa" type="url" data-path="social.whatsappLink" placeholder="https://wa.me/15618091720" readonly style="opacity:0.6;">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Shipping</h3>
+        <div class="field-grid">
+          <div class="field">
+            <label for="sh-free">Free shipping above (USD)</label>
+            <input id="sh-free" type="number" min="0" data-path="shipping.freeThreshold" placeholder="1000">
+          </div>
+          <div class="field">
+            <label for="sh-flat">Flat-rate shipping (USD)</label>
+            <input id="sh-flat" type="number" min="0" data-path="shipping.flatRate" placeholder="45">
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-foot">
+        <div class="right">
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            <span id="save-label">Save Settings</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script src="/admin/assets/admin.js"></script>
+<script>AdminApp.settings();</script>
+</body>
+</html>
